@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>便利贴留言墙</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-image: url("777.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+            font-family: Arial, sans-serif;
+        }
+
+        .note {
+            width: 200px;
+            height: 200px;
+            background-image: url("666.png");
+            background-size: cover;
+            padding: 10px;
+            margin: 10px;
+            word-wrap: break-word;
+            color: black;
+            font-size: 14px;
+            position: absolute;
+        }
+
+        #messageBoard {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #messageForm {
+            margin-top: 20px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            z-index: 9999;
+        }
+
+        #messageInput {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .z-index-top {
+            z-index: 9999;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #hideButton {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="title">便利贴留言墙</h1>
+    <div id="messageBoard">
+        <!-- 这里将显示留言 -->
+    </div>
+    <form id="messageForm">
+        <textarea id="messageInput" placeholder="在这里输入留言"></textarea>
+        <br>
+        <input type="submit" value="提交">
+    </form>
+    <button id="hideButton">隐藏输入框</button>
+    <script>
+        function checkOverlap(element) {
+            var messageInput = document.getElementById("messageInput");
+            var inputRect = messageInput.getBoundingClientRect();
+            var elementRect = element.getBoundingClientRect();
+
+            return !(
+                elementRect.bottom < inputRect.top ||
+                elementRect.top > inputRect.bottom ||
+                elementRect.right < inputRect.left ||
+                elementRect.left > inputRect.right
+            );
+        }
+
+        document.getElementById("messageForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var messageInput = document.getElementById("messageInput");
+            var message = messageInput.value;
+            if (message.trim() !== "") {
+                if (message.length > 150) {
+                    alert("留言字数超过限制，请重新输入");
+                    return;
+                }
+
+                var note = document.createElement("div");
+                note.className = "note";
+                note.textContent = message;
+
+                var randomTop = Math.floor(Math.random() * (window.innerHeight - 220));
+                var randomLeft = Math.floor(Math.random() * (window.innerWidth - 220));
+
+                // 检查便利贴和输入框是否重叠，如果重叠则调整位置
+                while (checkOverlap(note, randomTop, randomLeft)) {
+                    randomTop = Math.floor(Math.random() * (window.innerHeight - 220));
+                    randomLeft = Math.floor(Math.random() * (window.innerWidth - 220));
+                }
+
+                note.style.top = randomTop + "px";
+                note.style.left = randomLeft + "px";
+
+                note.classList.add("z-index-top");
+
+                document.getElementById("messageBoard").appendChild(note);
+                messageInput.value = "";
+            }
+        });
+
+        function checkOverlap(element, top, left) {
+            var messageInput = document.getElementById("messageInput");
+            var inputRect = messageInput.getBoundingClientRect();
+            var elementRect = element.getBoundingClientRect();
+
+            return !(
+                elementRect.bottom < inputRect.top ||
+                elementRect.top > inputRect.bottom ||
+                elementRect.right < inputRect.left ||
+                elementRect.left > inputRect.right ||
+                (top >= inputRect.top && top <= inputRect.bottom && left >= inputRect.left && left <= inputRect.right)
+            );
+        }
+
+        var messageInput = document.getElementById("messageInput");
+        messageInput.addEventListener("input", function () {
+            if (messageInput.value.length >= 130) {
+                messageInput.value = messageInput.value.substring(0, 130);
+            }
+        });
+
+        var hideButton = document.getElementById("hideButton");
+        var messageForm = document.getElementById("messageForm");
+
+        hideButton.addEventListener("click", function () {
+            if (messageForm.style.display === "none") {
+                messageForm.style.display = "block";
+                hideButton.textContent = "隐藏输入框";
+            } else {
+                messageForm.style.display = "none";
+                hideButton.textContent = "显示输入框";
+            }
+        });
+    </script>
+</body>
+</html>
